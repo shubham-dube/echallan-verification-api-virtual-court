@@ -120,7 +120,7 @@ This API fetches e-challan data for a vehicle with registration number from virt
 **Status Codes**
 - 200 OK : `Data Retrieved Successfuly`
   
-## State Codes and Departments
+## StateCodes
 Here are the state codes and their corresponding department names that you can use with the API:
 
 | State Code            | Department Name                                  |

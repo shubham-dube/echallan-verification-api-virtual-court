@@ -2,23 +2,20 @@ from flask import Flask, jsonify, Response, make_response, request
 import requests
 import uuid
 import base64
-from flasgger import Swagger
 from bs4 import BeautifulSoup
 import re
 import html
-
-# Go to localhost:5000/apidocs to see the swagger documentation
+from asgiref.wsgi import WsgiToAsgi
 
 app = Flask(__name__)
-swagger = Swagger(app)
+asgi_app = WsgiToAsgi(app)
 
-captcha = "https://vcourts.gov.in/virtualcourt/securimage/securimage_show.php"
-
-sessions = {}
+VCsessions = {}
 
 @app.route("/api/v1/getCaptcha", methods=["POST"])
 def getCaptcha():
     try:
+        captcha = "https://vcourts.gov.in/virtualcourt/securimage/securimage_show.php"
         stateCode = request.json.get("stateCode")
         session = requests.Session()
         id = str(uuid.uuid4())
@@ -49,7 +46,7 @@ def getCaptcha():
 
         # #
 
-        sessions[id] = {
+        VCsessions[id] = {
             "session": session,
             "v_token": v_token
         }
@@ -73,7 +70,7 @@ def getChallanDetails():
         vehicleNo = request.json.get("vehicleNo")
         captcha = request.json.get("captcha")
 
-        user = sessions.get(sessionId)
+        user = VCsessions.get(sessionId)
 
         session = user['session']
         if session is None:
@@ -194,4 +191,5 @@ def getChallanDetails():
 
 
 if __name__ == "__main__":
-    app.run()
+    import uvicorn
+    uvicorn.run(asgi_app, host='0.0.0.0', port=5001)
